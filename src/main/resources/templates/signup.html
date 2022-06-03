@@ -1,0 +1,322 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Signup</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous">
+    </script>
+    <style>
+        .rot {
+            animation: 3s ease-in 0s normal none infinite running rot;
+            -webkit-animation: 1s linear 0s normal none infinite running rot;
+            animation-timing-function: steps(8, end);
+            width: 100px;
+        }
+
+        @keyframes rot {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @-webkit-keyframes rot {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .main-content {
+            margin: auto;
+            width: 85%
+        }
+
+        .big-button {
+            transform: scale(1.3);
+        }
+
+        body {
+            background-image: url("/background_1920x1080.jpg");
+            height: auto;
+        }
+
+        .rotating {
+            position: absolute;
+            -webkit-transition: all 1.5s ease-in-out;
+            -moz-transition: all 1.5s ease-in-out;
+            -o-transition: all 1.5s ease-in-out;
+            transition: all 1.5s ease-in-out;
+        }
+
+        .rotated {
+            transform: rotate(360deg);
+            -webkit-transform: rotate(360deg);
+            -moz-transform: rotate(360deg);
+            -o-transform: rotate(360deg);
+        }
+
+        .input-wrapper_type_disc input {
+            -webkit-text-security: disc;
+        }
+    </style>
+    <script>
+        let timer = 0;
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
+        function startMove() {
+            setInterval(moveFields, 200);
+        }
+
+        function moveFields() {
+            let elems = document.getElementsByClassName('rotating');
+            for (let i = 0; i < elems.length; i++) {
+                timer++;
+                if (timer >= 7) {
+                    timer = 0;
+                    elems[i].style.top = `${getRandomInt(10, 90)}%`;
+                    elems[i].style.left = `${getRandomInt(10, 90)}%`;
+                }
+                let change = getRandomInt(0, 2);
+                if (change === 1) {
+                    elems[i].classList.toggle('rotated');
+                }
+            }
+        }
+
+        function clearFields() {
+            document.getElementById("id_name").value = "";
+            //document.getElementById("id_name").classList.toggle("rotating");
+            document.getElementById("id_second_name").value = "";
+            document.getElementById("id_nickname").value = "";
+            document.getElementById("id_email").value = "";
+            document.getElementById("id_phone").value = "";
+            document.getElementById("id_password").value = "";
+            document.getElementById("id_confirm_password").value = "";
+        }
+
+        function postUser(nickname_d, name_d, second_name_d, email_d, phone_d, password_d) {
+            $.post(
+                'http://localhost:8080/skalometr/signup',
+                {
+                    nickname: nickname_d,
+                    name: name_d,
+                    second_name: second_name_d,
+                    phone: phone_d,
+                    email: email_d,
+                    password: password_d
+                })
+                .done(function () {
+                    window.location.href = "/skalometr/signup";
+                })
+                .fail(function () {
+                    alert("Такой пользователь уже существует!")
+                });
+        }
+
+        function checkFieldsAndSignup() {
+            let nickname = document.getElementsByName("nickname")[0].value;
+            let name = document.getElementsByName("name")[0].value;
+            let second_name = document.getElementsByName("second_name")[0].value;
+            let email = document.getElementsByName("email")[0].value;
+            let phone = document.getElementsByName("phone")[0].value;
+            let password = document.getElementsByName("password")[0].value;
+            let confirm_password = document.getElementsByName("confirm_password")[0].value;
+
+            let flag = false;
+
+            if (password !== confirm_password) {
+                document.getElementById('check_confirm_password').innerHTML = "Пароли не совпадают";
+                flag = true;
+            }
+            if (String(password).length < 10) {
+                document.getElementById('check_password').innerHTML = "Длина пароля слишком короткая, нужно более 10 символов";
+                flag = true;
+            }
+            if (String(confirm_password).length < 10) {
+                document.getElementById('check_confirm_password').innerHTML = "Длина подтверждения пароля слишком короткая, нужно более 10 символов";
+                flag = true;
+            }
+            if (String(nickname).length < 5) {
+                document.getElementById('check_nickname').innerHTML = "Длина никнейма слишком короткая, нужно более 5 символов";
+                flag = true;
+            }
+            if (String(name).length < 1) {
+                document.getElementById('check_name').innerHTML = "Длина имени слишком короткая, нужно от 1 символа";
+                flag = true;
+            }
+            if (String(second_name).length < 1) {
+                document.getElementById('check_second_name').innerHTML = "Длина фамилии слишком короткая, нужно от 1 символа";
+                flag = true;
+            }
+            if (String(email).length < 5) {
+                document.getElementById('check_email').innerHTML = "Длина email слишком короткая, нужно более 5 символов";
+                flag = true;
+            }
+            if (String(phone).length < 11) {
+                document.getElementById('check_phone').innerHTML = "Длина телефона слишком короткая, нужно 11 символов";
+                flag = true;
+            }
+            if (isNaN(phone)) {
+                document.getElementById('check_phone').innerHTML = "Недопустимые символы для номера телефона";
+                flag = true;
+            }
+            if (getNaruto() === false) {
+                document.getElementById('check_naruto').innerHTML = "Неправильно"
+                flag = true;
+            }
+            if (getNumberRock() === false) {
+                document.getElementById('check_number_rock').innerHTML = "Неправильно"
+                flag = true;
+            }
+            if (getMattew() === false) {
+                document.getElementById('check_mattew').innerHTML = "Неправильно"
+                flag = true;
+            }
+            if (flag === true)
+                clearFields();
+            else
+                postUser(nickname, name, second_name, email, phone, password);
+        }
+
+        function getNaruto() {
+            let ele = document.getElementsByName('naruto');
+            for (let i = 0; i < ele.length; i++) {
+                if (ele[i].checked) return ele[i].value === "7";
+            }
+        }
+
+        function getNumberRock() {
+            let ele = document.getElementsByName('number_rock');
+            for (let i = 0; i < ele.length; i++) {
+                if (ele[i].checked) return ele[i].value === "3";
+
+            }
+        }
+
+        function getMattew() {
+            let mattew = [];
+            let ele = document.getElementsByName('mattew');
+            for (let i = 0; i < ele.length; i++) {
+                if (ele[i].checked) mattew.push(ele[i].value);
+            }
+            return mattew.includes("2") && mattew.includes("4");
+
+        }
+
+    </script>
+</head>
+
+<body>
+<header>
+    <div class="wrapper">
+        <nav class="navbar navbar-expand-lg navbar bg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="signup">
+                    <img src="/rock_mini.png" width="66px" height="74px" class="rot" style="background: transparent">
+                    <img src="/logo_text.png" width="204px" height="29px">
+                </a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="signup">Зарегистрироваться</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="users">Пользователи</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+<main class="wrapper">
+    <div class="spacer">
+        <div class="main-content">
+            <h2>Регистрация:</h2>
+            <hr>
+            <input id="id_name" class="form-control rotating" onmouseover="startMove()" style="width:250px"
+                   placeholder="Имя"
+                   type=text name=name>
+            <br><br>
+            <div id="check_name" style="color:red"></div>
+            <br>
+            <input id="id_second_name" class="form-control rotating" style="width:250px" onmouseover="startMove()"
+                   placeholder="Фамилия" type=text
+                   name=second_name>
+            <br><br>
+            <div id="check_second_name" style="color:red"></div>
+            <br>
+            <input id="id_nickname" class="form-control rotating" style="width:250px" onmouseover="startMove()"
+                   placeholder="Никнейм" type=text name=nickname>
+            <br><br>
+            <div id="check_nickname" style="color:red"></div>
+            <br>
+            <input id="id_email" class="form-control" style="width:250px" placeholder="Email" type=text
+                   name=email>
+            <div id="check_email" style="color:red"></div>
+            <br>
+            <input id="id_phone" class="form-control" style="width:250px" placeholder="Телефон" type=text name=phone>
+            <div id="check_phone" style="color:red"></div>
+            <br>
+            <div class="input-wrapper input-wrapper_type_disc">
+                <input id="id_password" class="form-control" style="width:250px" placeholder="Пароль" type=text
+                       name=password onpaste="return false;">
+            </div>
+            <div id="check_password" style="color:red"></div>
+            <br>
+            <div class="input-wrapper input-wrapper_type_disc">
+                <input id="id_confirm_password" class="form-control" style="width:250px"
+                       placeholder="Подтверждение пароля"
+                       type=text name=confirm_password onpaste="return false;">
+            </div>
+            <div id="check_confirm_password" style="color:red"></div>
+            <br>
+            <h4>Какой Наруто Удзумаке Хокаге по счету?</h4>
+            <table>
+                <tr>
+                    <td><input type=radio name=naruto value="1" class="big-button"> 1&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=radio name=naruto value="9" class="big-button"> 9&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=radio name=naruto value="7" class="big-button"> 7&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=radio name=naruto value="8" class="big-button"> 8&nbsp;&nbsp;&nbsp;&nbsp;
+            </table>
+            <div id="check_naruto" style="color:red"></div>
+            <br>
+            <h4>Сколько скал показали в сериале "Молодой Скала"? </h4>
+            <table>
+                <tr>
+                    <td><input type=radio name=number_rock value="1" class="big-button"> 1&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=radio name=number_rock value="2" class="big-button"> 2&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=radio name=number_rock value="3" class="big-button"> 3&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=radio name=number_rock value="4" class="big-button"> 4&nbsp;&nbsp;&nbsp;&nbsp;
+            </table>
+            <div id="check_number_rock" style="color:red"></div>
+            <br>
+            <h4>В каких фильмах снимался Мэттью Макконахи? <br><br>
+                <table>
+                    <td><input type=checkbox name=mattew value=1 class="big-button"> Игры разума&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=checkbox name=mattew value=2 class="big-button"> Контакт&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=checkbox name=mattew value=3 class="big-button"> Знакомьтесь, Джо Блэк&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td><input type=checkbox name=mattew value=4 class="big-button"> Даллаский клуб покупателей&nbsp;&nbsp;&nbsp;&nbsp;
+                </table>
+                <div id="check_mattew" style="color:red"></div>
+                <br>
+                <button class="btn btn-primary" onclick="checkFieldsAndSignup()">Отправить</button>
+                <br><br>
+            </h4>
+        </div>
+    </div>
+</main>
+</body>
+
+</html>
