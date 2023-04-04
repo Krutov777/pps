@@ -36,27 +36,6 @@ public class SignupController {
         return "signup";
     }
 
-    /*@PostMapping("/signup")
-    public String signup(Model model, @RequestBody User user) {
-        String message = "";
-        userRepository.save(user);
-        if (userRepository.findByNickname(user.getNickname()).isPresent()) {
-            message = "Пользователь с таким никнеймом уже существует!\n";
-        }
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            message = message + "Пользователь с таким email уже существует!\n";
-        }
-        if (userRepository.findByPhone(user.getPhone()).isPresent()) {
-            message = message + "Пользователь с таким телефоном уже существует!\n";
-        }
-        if (message.equals("")) {
-            model.addAttribute("message", "Пользователь успешно добавлен!");
-            userRepository.save(user);
-        }
-        else
-            model.addAttribute("message", message);
-        return "signup";
-    }*/
     @PostMapping("/signup")
     public ResponseEntity<HttpStatus> signup(
             @RequestParam(name = "nickname") String nickname,
